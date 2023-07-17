@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-postgres
+  labels:
+    name: seccamp-2023
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deployment-postgres
+  template:
+    metadata:
+      labels:
+        app: deployment-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15.3
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: postgres-password
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: postgres-db
+        volumeMounts:
+        - name: postgres-initdb
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: postgres-initdb
+        configMap: 
+          name: postgres-initdb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-postgres
+spec:
+  selector:
+    app: deployment-postgres
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: 5432

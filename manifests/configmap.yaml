@@ -1,0 +1,10 @@
+apiVersion: v1
+data:
+  init.sh: "#!/bin/bash\n\nset -e\n\npsql -v ON_ERROR_STOP=1 --username \"$POSTGRES_USER\"
+    --dbname \"$POSTGRES_DB\" <<-EOSQL\n  CREATE TABLE books (\n    id integer,\n
+    \   title varchar(255)\n  );\n  \n  INSERT INTO books VALUES (1, 'Security Camp
+    101');\nEOSQL\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: postgres-initdb
